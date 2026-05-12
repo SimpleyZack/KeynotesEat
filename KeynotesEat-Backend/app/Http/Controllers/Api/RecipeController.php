@@ -11,30 +11,32 @@ class RecipeController extends Controller {
         $recipes = Recipe::all();
         return response()->json($recipes);
     }
-    public function store(Request $request) 
+public function store(Request $request) 
 {
-    // Validasi sederhana biar datanya nggak ngaco
-    $request->validate([
-        'title' => 'required',
-        'name' => 'required',
-        'description' => 'required',
-    ]);
+    try {
+        // Kita tangkap semua data, tapi paksa default kalau kosong
+        $recipe = Recipe::create([
+            'title'       => $request->title,
+            'name'        => $request->name,
+            'description' => $request->description ?? '-',
+            'ingredients' => $request->ingredients ?? '-',
+            'steps'       => $request->steps ?? '-',
+            'image_url'   => $request->image_url ?? '',
+            'waktu'       => (int) ($request->waktu ?? 0), // Paksa jadi angka
+            'level'       => $request->level ?? 'Mudah',
+        ]);
 
-    // Masukkan data ke database
-    $recipe = Recipe::create([
-    'title' => $request->title,
-    'name' => $request->name,
-    'description' => $request->description,
-    'ingredients' => $request->ingredients,
-    'steps' => $request->steps,
-    'image_url' => $request->image_url,
-    'waktu' => $request->waktu, // Tambah ini
-    'level' => $request->level, // Tambah ini
-    ]);
-    // Kasih jawaban ke Postman kalau sukses
-    return response()->json([
-        'message' => 'Resep berhasil ditambah, imoett!',
-        'data' => $recipe
-    ], 201);
+        return response()->json([
+            'message' => 'Resep berhasil ditambah, imoett!',
+            'data' => $recipe
+        ], 201);
+
+    } catch (\Exception $e) {
+        // Kalau error, Laravel bakal ngasih tau kenapa daripada cuma angka 500
+        return response()->json([
+            'message' => 'Gagal simpan nih!',
+            'error' => $e->getMessage()
+        ], 500);
+    }
 }
 }

@@ -14,7 +14,7 @@ export default function HomePage() {
     steps: '',
     image_url: '',
     waktu: '',
-    kesulitan:''
+    level:'Mudah'
 
   });
 
@@ -39,7 +39,7 @@ export default function HomePage() {
       setPage('home');
       fetchRecipes();
       // Reset form setelah sukses
-      setFormData({ title: '', name: '', description: '', ingredients: '', steps: '', image_url: '', waktu: '', kesulitan: '' });
+      setFormData({ title: '', name: '', description: '', ingredients: '', steps: '', image_url: '', waktu: '', level: 'Mudah' });
     } catch (error) {
       console.error("Gagal nambah resep:", error);
     }
