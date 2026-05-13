@@ -14,15 +14,28 @@ class RecipeController extends Controller {
 public function store(Request $request) 
 {
     try {
-        // Kita tangkap semua data, tapi paksa default kalau kosong
+        $imageUrl = '';
+
+        if ($request->hasFile('image_file')) {
+            // 1. Simpan file ke 'images' di dalam disk 'public' 
+            // Ini otomatis akan masuk ke storage/app/public/images
+            $path = $request->file('image_file')->store('images', 'public');
+            
+            // 2. Buat URL-nya menggunakan asset() agar sesuai dengan APP_URL di .env
+            $imageUrl = asset('storage/' . $path);
+        } 
+        else if ($request->filled('image_url')) {
+            $imageUrl = $request->image_url;
+        }
+
         $recipe = Recipe::create([
             'title'       => $request->title,
             'name'        => $request->name,
             'description' => $request->description ?? '-',
             'ingredients' => $request->ingredients ?? '-',
             'steps'       => $request->steps ?? '-',
-            'image_url'   => $request->image_url ?? '',
-            'waktu'       => (int) ($request->waktu ?? 0), // Paksa jadi angka
+            'image_url'   => $imageUrl,
+            'waktu'       => (int) ($request->waktu ?? 0),
             'level'       => $request->level ?? 'Mudah',
         ]);
 
@@ -32,7 +45,6 @@ public function store(Request $request)
         ], 201);
 
     } catch (\Exception $e) {
-        // Kalau error, Laravel bakal ngasih tau kenapa daripada cuma angka 500
         return response()->json([
             'message' => 'Gagal simpan nih!',
             'error' => $e->getMessage()
